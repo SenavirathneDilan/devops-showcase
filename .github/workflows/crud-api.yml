@@ -5,15 +5,15 @@ on:
           - development
           - main
         paths:
-          - 'python-sample-app/version.txt'
+          - "python-sample-app/version.txt"
 env:
-  PATH: 'python-sample-app'
+  PATH: python-sample-app
 jobs:
     build:
-      runs-on: ubuntu-22.04
+      runs-on: ubuntu-latest
       steps:
-        - name: checkout code
-          uses: actions/checkout@v4
+        - name: CheckOut Code
+          uses: actions/checkout@v3
 
         - name: Get Data
           id: get_data
