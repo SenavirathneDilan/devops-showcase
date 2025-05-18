@@ -1,8 +1,8 @@
 name: Build CRUD API and Publish Documentation 
 on:
-    push:
-        branches:
-          - development
+  push:
+    branches:
+      - development
           # - main
         # paths:
         #   - "python-sample-app/version.txt"
