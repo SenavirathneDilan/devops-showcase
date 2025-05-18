@@ -24,7 +24,7 @@ jobs:
         run: |
           PYTHON_VERSION=$(sed -rn 's/FROM python:([0-9]+\.[0-9]+).*/\1/p' Dockerfile)
           APP_VERSION=$(sed -rn 's/app_version:[[:space:]]*(.*)/\1/p' version.txt)
-          APP_NAME=$(sed -rn 's/app_version:[[:space:]]//g' version.txt)
+          APP_NAME=$(sed -rn 's/app_name:[[:space:]]//p' version.txt)
           echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
           echo "app_version=$APP_VERSION" >> $GITHUB_OUTPUT
           echo "app_name=$APP_NAME" >> $GITHUB_OUTPUT
