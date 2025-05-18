@@ -4,6 +4,12 @@ from pydantic import BaseModel
 
 from random import randrange
 
+import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
+
+
 app = FastAPI()
 
 class Post(BaseModel):
@@ -18,6 +24,17 @@ class UpdatePost(BaseModel):
     content: str
     published: bool = True
     rating: Optional[int] = None
+
+
+try:
+    conn = psycopg2.connect(host='localhost', database='devops-showcase', user='postgres', password=os.getenv('POSTGRES_PASSWD'), cursor_factory=RealDictCursor)
+    cursor = conn.cursor()
+    print('Database connection Successfull')
+except Exception as e:
+    print("Db connection Failed")
+    print(e)
+    
+
 
 
 my_post = [{"title": "title of post 1", "content": "content of post 1", "id": 1},
