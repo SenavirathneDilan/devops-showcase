@@ -7,7 +7,7 @@ on:
         paths:
           - 'python-sample-app/version.txt'
 env:
-  PATH: ''
+  PATH: 'python-sample-app'
 jobs:
     validate:
       runs-on: ubuntu-latest
@@ -32,7 +32,10 @@ jobs:
           uses: py-actions/flake8@v2
         - name: Docker Build
           if: steps.lint.outcome == 'success'
+          env:
+            FULL_TAG: ${{steps.get_data.outputs.app_version}}-${{github.sha}}
+            PATH: ${{env.PATH}}
           run: |
-            docker build -t .
+            docker build -t $FULL_TAG $PATH/Dokerfile
           
 
