@@ -1,1 +1,2 @@
-app_version: 0.0.17
+app_name: crud-api
+app_version: 0.0.29
