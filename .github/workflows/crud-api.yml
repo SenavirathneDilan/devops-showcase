@@ -87,7 +87,7 @@ jobs:
           REPOSITORY: ${{steps.get_data.outputs.app_name}}
           REGION: ${{vars.ECR_REGION}}
         run: |
-          findings=(aws ecr describe-image-scan-findings --repository-name $REPOSITORY --image-id imageTag=$IMAGE_TAG --region $REGION --query imageScanFindings.findingSeverityCounts)
+          findings=$(aws ecr describe-image-scan-findings --repository-name $REPOSITORY --image-id imageTag=$IMAGE_TAG --region $REGION --query imageScanFindings.findingSeverityCounts)
 
           HIGH=$(echo "$findings" | jq -r '.HIGH // 0')
           CRITICAL=$(echo "$findings" | jq -r '.CRITICAL // 0')
