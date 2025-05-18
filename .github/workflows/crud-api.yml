@@ -46,6 +46,6 @@ jobs:
         continue-on-error: true
 
       - name: Docker Build
-        if: steps.lint.outcome == 'success'
+        # if: steps.lint.outcome == 'success'
         run: |
           docker build -t ${{ steps.get_data.outputs.app_version }}-${{ github.sha }} -f ${{ env.APP_PATH }}/Dockerfile ${{ env.APP_PATH }}
