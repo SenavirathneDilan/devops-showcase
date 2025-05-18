@@ -79,7 +79,7 @@ jobs:
           REGION: ${{vars.ECR_REGION}}
         run: |
           sleep 10
-          aws ecr wait image-scan-complete --repository-name $REPOSITORY --image-id imageTag=$FULL_TAG --region $AWS_REGION
+          aws ecr wait image-scan-complete --repository-name $REPOSITORY --image-id imageTag=$IMAGE_TAG --region $AWS_REGION
 
       - name: Review Vulnerability Scan
         env:
