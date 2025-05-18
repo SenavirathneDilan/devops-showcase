@@ -1,9 +1,0 @@
-name: python api build and upload to ecr and update the image
-on:
-    push:
-        branches:
-          - development
-        paths:
-          - 'python-sample-app'
-jobs:
-    validate:
