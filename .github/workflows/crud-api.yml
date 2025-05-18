@@ -9,12 +9,12 @@ on:
 env:
   PATH: 'python-sample-app'
 jobs:
-    validate:
+    build:
       runs-on: ubuntu-latest
-
       steps:
         - name: checkout code
-          uses: actions/checkout@v3
+          uses: actions/checkout@v4
+
         - name: Get Data
           id: get_data
           run: |
