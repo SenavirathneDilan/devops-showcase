@@ -46,7 +46,7 @@ jobs:
             FULL_TAG: ${{ steps.get_info.outputs.chart-version }}-{{github.sha}}
             CHART_NAME: ${{ env.CHART_NAME}}
         run: |
-          sed -i 's/version: .*$/version: $FULL_TAG' $CHART_NAME/Chart.yaml
+          sed -i "s/version: .*$/version: $FULL_TAG" $CHART_NAME/Chart.yaml
           helm package $CHART_NAME
       - name: Upload Artifact 
         if: steps.package_chart.outcome == 'success'
