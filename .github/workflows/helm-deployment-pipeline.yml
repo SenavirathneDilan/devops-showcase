@@ -51,22 +51,26 @@ jobs:
           helm package $CHART_NAME
       - name: Upload Artifact 
         if: steps.package_chart.outcome == 'success'
+        id: upload
         uses: actions/upload-artifact@v4
         with:
             name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
             path: ${{env.WORk_DIR}}/${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}.tgz
     outputs:
-      chart_artifact_name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
+      artifact_id: ${{steps.upload.outputs.artifact-id}}
 
-#   publish:
-#     runs-on: ubuntu-latest
-#     needs: validate
-#     permissions:
-#        id-token: write
-#        contents: write
+  publish:
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+       id-token: write
+       contents: write
        
-#     steps:
-#         - name: Download Artifact
+    steps:
+        - name: Downloading Artefact From previous Job 
+          env:
+            ARTIFACT: ${{needs.validate.outputs.artifact_id}}
+          run: echo "Artifact ID $ARTIFACT"
           
 
 
