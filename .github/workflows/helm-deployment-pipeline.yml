@@ -3,7 +3,7 @@ on:
   push:
     branches: 
         - main
-        - developmenmt
+        - development
     paths:
       - 'helm-charts/sample-python-api/Chart.yaml'
 env:
