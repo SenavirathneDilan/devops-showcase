@@ -1,0 +1,29 @@
+{{- if .Values.routingRules.enabled | default false}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: {{ .Values.routingRules.kind}}
+metadata:
+  name: {{ printf "%s-%s-route" .Values.namespace .Values.service_name}}
+  namespace: {{ .Values.namespace}}
+spec:
+  parentRefs:
+  {{- range .Values.routingRules.parentRefs}}
+    - name: {{ .name}}
+      namespace: {{ .namespace}}
+      kind: {{ .kind}}
+      sectionName: {{ .sectionName}}
+  {{- end}}
+  rules:
+  {{- range .Values.routingRules.rules}}
+    - matches:
+      {{- range .matches}}
+        - path:
+            type: {{.path.type}}
+            value: {{.path.value | quote}}
+      {{- end}}
+      backendRefs:
+      {{- range .backendRefs}}
+        - name: {{ .name}}
+          port: {{ .port}}
+      {{- end}}
+  {{- end}}
+  {{- end}}

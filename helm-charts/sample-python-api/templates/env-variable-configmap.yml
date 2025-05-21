@@ -1,0 +1,12 @@
+{{- if .Values.appConfig.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-%s-appconfig" .Values.namespace .Values.service_name }}
+  namespace: {{ .Values.namespace | quote }}
+  labels:
+    app: {{ .Values.service_name | quote }}
+data:
+  {{ .Values.appConfig.fileName}}: |
+    {{ .Values.appConfig.config.appConfig | toJson| indent 4 }}
+{{- end }}

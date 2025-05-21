@@ -1,62 +1,28 @@
 {{/*
-Expand the name of the chart.
+common labels
 */}}
-{{- define "sample-python-api.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
+{{- define "common.labels" -}}
+app.kubernetes.io/name: {{ .Values.service_name | default "test"}}
+app.kubernetes.io/instance: {{ .Values.common_labels.instance | default "test" }}
+app.kubernetes.io/version: {{ .Chart.Version }}
+app.kubernetes.io/part-of: {{ .Values.common_labels.part_of | default .Chart.Name }}
+app.kubernetes.io/component: {{ .Values.common_labels.component | default .Chart.Type }}
+app.kubernetes.io/managed-by: {{ .Values.common_labels.managed_by | default "helm" }}
+{{- end -}}
 {{/*
-Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
+selector labels
 */}}
-{{- define "sample-python-api.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
-{{- end }}
-{{- end }}
-{{- end }}
-
+{{- define "selector.labels" -}}
+app.kubernetes.io/app: {{.Values.service_name | default "test"}}
+{{- end -}}
 {{/*
-Create chart name and version as used by the chart label.
+Repo Url
 */}}
-{{- define "sample-python-api.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{/*
-Common labels
-*/}}
-{{- define "sample-python-api.labels" -}}
-helm.sh/chart: {{ include "sample-python-api.chart" . }}
-{{ include "sample-python-api.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
-
-{{/*
-Selector labels
-*/}}
-{{- define "sample-python-api.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "sample-python-api.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "sample-python-api.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "sample-python-api.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
-{{- end }}
+{{- define "full.image_name" -}}
+{{- $repo := .Values.image.image }}
+{{- if .Values.image.tag -}}
+{{- $repo }}:{{ .Values.image.tag }}
+{{- else -}}
+{{- $repo }}
+{{- end -}}
+{{- end -}}

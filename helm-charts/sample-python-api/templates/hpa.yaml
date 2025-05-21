@@ -1,32 +1,20 @@
-{{- if .Values.autoscaling.enabled }}
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
+{{- if .Values.autoscaling.enabled}}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
 metadata:
-  name: {{ include "sample-python-api.fullname" . }}
-  labels:
-    {{- include "sample-python-api.labels" . | nindent 4 }}
+  name: {{ printf "%s-so" .Values.service_name}}
+  namespace: {{ .Values.namespace | quote}}
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: {{ include "sample-python-api.fullname" . }}
-  minReplicas: {{ .Values.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
-  metrics:
-    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
-    {{- end }}
-    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
-    {{- end }}
-{{- end }}
+    name: {{ .Values.service_name}}
+
+  minReplicaCount: {{ .Values.autoscaling.minReplicaCount}}
+  maxReplicaCount: {{ .Values.autoscaling.maxReplicaCount}}
+  cooldownPeriod: {{ .Values.autoscaling.cooldownPeriod | default 300 }}
+  pollingInterval: {{ .Values.autoscaling.pollingInterval | default 30 }}
+
+  {{- if .Values.autoscaling.triggers }}
+  triggers:
+  {{- toYaml .Values.autoscaling.triggers | nindent 4 }}
+  {{- end }}
+{{- end}}

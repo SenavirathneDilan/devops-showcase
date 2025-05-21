@@ -1,15 +1,16 @@
+{{- if .Values.service.enabled}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "sample-python-api.fullname" . }}
+  name: {{ .Values.service_name}}
   labels:
-    {{- include "sample-python-api.labels" . | nindent 4 }}
+    {{- include "common.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
+  {{- with .Values.service.ports }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+    {{- toYaml . | nindent 4 }}
+  {{- end}}
   selector:
-    {{- include "sample-python-api.selectorLabels" . | nindent 4 }}
+    {{- include "selector.labels" . | nindent 4 }}
+{{- end }}
