@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
             name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
-            path: ${{env.WORk_DIR}}/${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}.tar.gz
+            path: ${{env.WORk_DIR}}/${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}.tgz
     outputs:
       chart_artifact_name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
 
