@@ -1,0 +1,24 @@
+{{- if .Values.pvc.enabled }}
+{{-  $name := .Values.service_name}}
+{{- $namespace := .Values.namespace }}
+{{- $labels := include "service-launch-pad.labels" . | nindent 4 }}
+{{- range .Values.pvc.volumeMounts }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+{{ $labels | indent 4 }}
+  namespace: {{ $namespace | quote }}
+  name: {{ printf "%s-%s-pvc" $name .name | quote }}
+spec:
+  accessModes:
+  {{- range .accessModes }}
+    - {{ . | quote }}
+  {{- end }}
+  storageClassName: {{ .storageClassName | quote }}
+  resources:
+    requests:
+      storage: {{ .storage | quote }}
+---
+{{- end }}
+{{- end }}

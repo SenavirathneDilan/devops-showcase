@@ -1,0 +1,17 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.service_name}}
+  namespace: {{ .Values.namespace}}
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+  labels:
+    {{- include "service-launch-pad.labels" . | indent 4}}
+spec:
+  minAvailable: {{ .Values.autoscaling.minAvailable | default 1}}
+  maxUnavailable: {{ .Values.pdb.maxUnavailable | default "50%" | quote}}
+  selector:
+    matchLabels:
+      app: {{ .Values.service_name}}
+{{- end}}

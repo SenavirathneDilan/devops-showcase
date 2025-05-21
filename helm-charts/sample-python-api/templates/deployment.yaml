@@ -1,78 +1,87 @@
+{{- $name := .Values.service_name }}
 apiVersion: apps/v1
-kind: Deployment
+Kind: Deployment
 metadata:
-  name: {{ include "sample-python-api.fullname" . }}
+  name: {{ .Values.service_name}}
+  namespace: {{ .Release.Namespace}}
   labels:
-    {{- include "sample-python-api.labels" . | nindent 4 }}
+  {{- include "common.labels" . | nindent 6 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  {{- if not .Values.autoscaling.enabled -}}
+  replicas: {{.Values.autoscaling.replicas | default 2 }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "sample-python-api.selectorLabels" . | nindent 6 }}
+      {{- include "selector.labels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "sample-python-api.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        {{- include "selector.labels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.image.imagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml . | nindent 8 }}  
       {{- end }}
-      serviceAccountName: {{ include "sample-python-api.serviceAccountName" . }}
+      {{- if .Values.service_account.enabled }}
+      serviceAccountName: {{ .Values.service_name }}
+      {{- end }}
       {{- with .Values.podSecurityContext }}
-      securityContext:
+      securityContext: 
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: {{ .Values.service_name}}
+          image: {{- include "full.image_name" . }}
+          imagePullPolicy: {{ .Values.image |  default "IfNotPresent" }}
+          {{- with .Values.container.ports }}
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          {{- with .Values.livenessProbe }}
-          livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
+          {{- with .Values.probes.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}            
+          {{- end -}}
+          {{- with .Values.probes.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.resources }}
+          {{- with .Values.container.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
-          volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
+      
+      {{- if .Values.topologySpreadConstraint.enabled }}
+      topologySpreadConstraints:
+        - maxSkew: {{.Values.topologySpreadConstraint.maxSkew}}
+          topologyKey: capacity-spread
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.service_name }}
+      {{- end}}
+      {{- with .Values.tolerations}}
+      tolerations:
+        {{- toYaml . | nindent 8}}
+      {{- end}}
+      {{- with .Values.affinity}}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
+      {{- if .Values.appConfig.enabled | or .Values.pvc.enabled}}
+      volumes:
+      {{- if .Values.appConfig.enabled }}
+        - name: {{ printf "%s-volume" .Values.service_name }}
+          configMap:
+            name: {{ printf "%s-%s-appconfig" .Values.namespace .Values.service_name }}
       {{- end }}
+      {{- if .Values.pvc.enabled}}
+      {{- range .Values.pvc.volumeMounts}}
+        - name: {{printf "%s-vol" .name | quote}}
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-%s-pvc" $name .name | quote }}
+      {{- end}}
+      {{- end}}
+      {{- end}}      
+
+
+  

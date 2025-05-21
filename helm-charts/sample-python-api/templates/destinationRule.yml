@@ -1,0 +1,18 @@
+{{- if ne .Values.service_type "headless" -}}
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.service_name | quote }}
+  namespace: {{ .Values.namespace | quote }}
+  labels:
+    {{- include "common.labels" . | indent 4 }}
+spec:
+  host: {{ printf "%s.%s.svc.cluster.local" .Values.service_name .Values.namespace }}
+  subsets:
+    - name: primary
+      labels:
+        version: primary
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+{{- end}}
