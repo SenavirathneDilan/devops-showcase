@@ -1,0 +1,66 @@
+name: Lint/Upload/ and deploy helm chart
+on:
+  push:
+    branches: 
+        - main
+        - development
+    paths:
+      - 'helm-charts/sample-python-api/Chart.yaml'
+env:
+  WORk_DIR: 'helm-charts'
+  CHART_NAME: "sample-python-api"
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Chekout Code
+        uses: actions/checkout@v4
+      - name: Get Info
+        id: get_info
+        working-directory: ${{env.WORk_DIR}}
+        env:
+            CHART_NAME: ${{env.CHART_NAME}}
+        run: |
+          CHART_VERSION=$(sed -rn "s/version:[[:space:]]//p" $CHART_NAME/Chart.yaml)
+          echo "chart_version=$CHART_VERSION" >> $GITHUB_OUTPUT
+      - name: Install Helm
+        timeout-minutes: 3
+        continue-on-error: false
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+
+      - name: Lint Helm Chart
+        id: lint_chart
+        working-directory: ${{env.WORk_DIR}}/${{env.CHART_NAME}}
+        run: |
+          helm lint
+          
+      - name: Package Helm Chart
+        if: steps.lint_chart.outcome == 'success'
+        id: package_chart
+        working-directory: ${{ env.WORk_DIR}}
+        env:
+            FULL_TAG: ${{ steps.get_info.outputs.chart_version }}-${{github.sha}}
+            CHART_NAME: ${{ env.CHART_NAME}}
+        run: |
+          sed -i "s/version: .*$/version: $FULL_TAG/g" $CHART_NAME/Chart.yaml
+          sleep 2
+          helm package $CHART_NAME
+      - name: Upload Artifact 
+        if: steps.package_chart.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+            name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
+            path: ${{env.WORk_DIR}}/${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
+    outputs:
+      chart_artifact_name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
+
+
+      
+          
+          
+
+
