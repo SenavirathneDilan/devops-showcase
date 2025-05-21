@@ -7,7 +7,7 @@ on:
     paths:
       - 'helm-charts/sample-python-api/Chart.yaml'
 env:
-  WORk_DIR: 'helm-chart'
+  WORk_DIR: 'helm-charts'
   CHART_NAME: "sample-python-api"
 jobs:
   validate:
