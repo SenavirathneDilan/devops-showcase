@@ -43,7 +43,7 @@ jobs:
         id: package_chart
         working-directory: ${{ env.WORk_DIR}}
         env:
-            FULL_TAG: ${{ steps.get_info.outputs.chart-version }}-${{github.sha}}
+            FULL_TAG: ${{ steps.get_info.outputs.chart_version }}-${{github.sha}}
             CHART_NAME: ${{ env.CHART_NAME}}
         run: |
           sed -i "s/version: .*$/version: $FULL_TAG/g" $CHART_NAME/Chart.yaml
@@ -53,10 +53,10 @@ jobs:
         if: steps.package_chart.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-            name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart-version}}-${{github.sha}}
-            path: ${{env.WORk_DIR}}/${{env.CHART_NAME}}-${{steps.get_info.outputs.chart-version}}-${{github.sha}}
+            name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
+            path: ${{env.WORk_DIR}}/${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
     outputs:
-      chart_artifact_name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart-version}}-${{github.sha}}
+      chart_artifact_name: ${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}
 
 
       
