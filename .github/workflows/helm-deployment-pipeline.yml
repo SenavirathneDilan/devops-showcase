@@ -90,6 +90,7 @@ jobs:
           uses: aws-actions/amazon-ecr-login@v2
 
         - name: Push Helm Chart to Amazon ECR
+          working-directory: ${{env.WORk_DIR}}
           env:
             REGISTRY: ${{steps.login-ecr.outputs.registry}}
             PACKAGE_NAME: ${{needs.validate.outputs.artifact_name}}
