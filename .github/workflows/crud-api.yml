@@ -117,7 +117,7 @@ jobs:
           ARGO_APPLICATION_SET_PATH: ${{env.ARGO_APPLICATION_SET_PATH}}
         run: |
           ls -al
-          test -f "$ARGO_APPLICATION_SET_PATH" || { echo "Error: $ARGO_APPLICATION_SET_PATH not found"; exit 1; }
+          test -f "$ARGO_APPLICATION_SET_PATH" || { echo "Error: $ARGO_APPLICATION_SET_PATH not f ound"; exit 1; }
           yq e '.spec.generators[0].list.elements[0].imageTag = env(TAG)' -i "$ARGO_APPLICATION_SET_PATH"
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
