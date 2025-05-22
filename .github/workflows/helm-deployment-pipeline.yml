@@ -90,14 +90,16 @@ jobs:
           id: login-ecr
           uses: aws-actions/amazon-ecr-login@v2
 
+        - name: List files
+          run: |
+            ls -al
+
         - name: Push Helm Chart to Amazon ECR
-          working-directory: ${{env.WORk_DIR}}
           env:
             REGISTRY: ${{steps.login-ecr.outputs.registry}}
             PACKAGE_NAME: ${{needs.validate.outputs.artifact_name}}
             REGISTRY_ALIAS: ${{env.REGISTRY_ALIAS}}
           run: |
-            ls -R
             helm push $PACKAGE_NAME oci://$REGISTRY/$REGISTRY_ALIAS
 
 
