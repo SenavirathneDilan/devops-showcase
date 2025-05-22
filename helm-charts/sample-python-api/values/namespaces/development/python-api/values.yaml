@@ -1,0 +1,203 @@
+service_name: "crud-api-test"
+
+monitoring:
+  enabled: false
+  prometheusRelease: production-prometheus-stack
+
+common_labels:
+  part-of: "python-api"
+  component: "api"
+
+image:
+  imagePullSecrets: 
+  image: 027222547638.dkr.ecr.ap-southeast-1.amazonaws.com/crud-api
+  tag: 
+  imagePullPolicy: IfNotPresent
+
+container:
+  ports:
+    - name: http
+      containerPort: 80
+      protocol: TCP
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "250m"      
+    limits:
+      memory: "128Mi"
+      cpu: "500m"
+
+probes:
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+  
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+  
+
+pvc:
+  enabled: false
+
+  volumeMounts:
+    - mountPath: /bkp
+      name: bkp
+      storage: 5Gi
+      storageClassName: efs-sc-dynamic-pro
+      accessModes:
+        - ReadWriteMany
+    - mountPath: /mnt/app1
+      name: app1
+      storage: 5Gi
+      storageClassName: gp2
+      accessModes:
+        - ReadWriteOnce
+    - mountPath: /mnt/app2
+      name: app2
+      storage: 6Gi
+      storageClassName: efs-sc-dynamic-pro
+      accessModes:
+        - ReadWriteMany
+
+# configuration file env
+appConfig:
+  enabled: false
+  mountPath: /usr/src/app/src/config/env/test-config.json
+  fileName: python-api.json
+  config:
+    appConfig: |
+      {
+        "Pythin-API": {
+           "IP": "api.default.svc.cluster.local",
+           "PORT": 80
+        }
+      }
+
+autoscaling:
+  replicas: 2
+  enabled: true
+  minReplicaCount: 2
+  maxReplicaCount: 3
+  canaryReplicaCount: 0
+  cooldownPeriod: 90
+  pollingInterval: 45
+  triggers:
+    - type: cpu
+      metadata:
+        type: Utilization
+        value: "90"
+    - type: memory
+      metadata:
+        type: Utilization
+        value: "90"
+    # - type: aws-sqs-queue
+    #   authenticationRef:
+    #     name: keda-trigger-auth-aws-irsa
+    #   metadata:
+    #     queueURL: https://sqs.ap-southeast-1.amazonaws.com/<account>/<name>
+    #     queueLength: "1"
+    #     awsRegion: "ap-southeast-1"
+    #     scaleOnInFlight: "true"
+
+
+service_account:
+  enabled: true
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<account>:role/
+
+
+podSecurityContext: ""
+
+
+service:
+  enabled: true
+  type: "ClusterIP"
+  ports:
+    - name: tcp-auth
+      port: 8018
+      targetPort: 80
+      protocol: TCP
+
+
+pdb:
+  enabled: false
+  minAvailable: 1
+  maxUnavailable: "60%"
+
+#rate limit configs
+envoy:
+  enabled: false
+  port: 8080
+
+  token_bucket:
+    max_tokens: 200
+    tokens_per_fill: 100
+    fill_interval: 10s
+
+#istio and gateway api  related config
+#routing rules
+routingRules:
+  enabled: false
+  kind: HTTPRoute
+  parentRefs:
+    - name: test-ingress-gateway
+      namespace: istio-ingress
+      kind: Gateway
+      sectionName: test-listener
+
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
+      backendRefs:
+        - name: sample-python-api
+          port: 8080
+
+topologySpreadConstraint:
+  enabled: false
+  maxSkew: 1
+
+tolerations:
+  - key: "defaultcluster"
+    operator: "Equal"
+    value: "no"
+    effect: "NoSchedule"
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: "karpenter.sh/capacity-type"
+              operator: In
+              values: ["spot"]
+          
+            # - key: "kubernetes.io/arch"
+            #   operator: In
+            #   values: ["arm64"]
+            # - key: "topology"
+            #   operator: In
+            #   values: ["public"]
+    # preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     preference:
+    #       matchExpressions:
+    #         - key: "karpenter.sh/capacity-type"
+    #           operator: In
+    #           values: ["spot"]
+      # - weight: 1
+      #   preference:
+      #     matchExpressions:
+      #       - key: "karpenter.sh/capacity-type"
+      #         operator: In
+      #         values: ["on-demand"]
+  # podAntiAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #     - weight: 100
+  #       podAffinityTerm:
+  #         topologyKey: "kubernetes.io/hostname"

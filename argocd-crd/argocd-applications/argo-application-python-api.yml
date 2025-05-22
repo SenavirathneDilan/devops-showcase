@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: python-api
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - environment: backend
+            appName: python-api
+            valuesFile: values/namespaces/development/python-api/values.yml
+            imageTag: 0.0.32-ac9022d9f0bf04d25201c8ff8de431374495c7a8
+            
+  template:
+    metadata:
+      name: '{{environment}}-{{appName}}'
+      namespace: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+      labels:
+        name: '{{environment}}-{{appName}}'
+    spec:
+      project: backend-services
+      source:
+        repoURL: 'oci://027222547638.dkr.ecr.ap-southeast-1.amazonaws.com'
+        chart: helm/sample-python-api
+        targetRevision: 0.1.24-aeb0cd0337ef82f62d56b69d6c69659259ba2a68
+        helm:
+          valueFiles:
+            - '{{valuesFile}}'
+          parameters:
+            - name: image.tsg
+              values: '{{imageTag}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: backend
