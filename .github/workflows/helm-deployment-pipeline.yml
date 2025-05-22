@@ -56,7 +56,7 @@ jobs:
         id: upload
         uses: actions/upload-artifact@v4
         with:
-            name: Helm Chart
+            name: HelmChart
             path: ${{env.WORk_DIR}}/${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}.tgz
     outputs:
       artifact_id: ${{steps.upload.outputs.artifact-id}}
@@ -100,7 +100,7 @@ jobs:
             PACKAGE_NAME: ${{needs.validate.outputs.artifact_name}}
             REGISTRY_ALIAS: ${{env.REGISTRY_ALIAS}}
           run: |
-            helm push my-artifact/$PACKAGE_NAME.tgz oci://$REGISTRY/$REGISTRY_ALIAS/
+            helm push HelmChart/$PACKAGE_NAME.tgz oci://$REGISTRY/$REGISTRY_ALIAS/
 
 
 
