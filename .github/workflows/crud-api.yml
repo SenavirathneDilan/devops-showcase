@@ -9,7 +9,7 @@ on:
 env:
   APP_PATH: python-sample-app
   ROLE_TO_ASSUME: ${{vars.ROLE_TO_ASSUME}}
-  ARGO_APPLICATION_SET: argocd-applications/argo-application-python-api.yml
+  ARGO_APPLICATION_SET: argocd-crd/argocd-applications/argo-application-python-api.yml
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -111,13 +111,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Update ImageTAg in ArgoAPP
-        working-directory: argocd-crd
         env:
           TAG: ${{needs.build.outputs.full_tag}}
           ARGO_APPLICATION_SET_PATH: ${{env.ARGO_APPLICATION_SET_PATH}}
         run: |
-          ls -al
-          test -f "$ARGO_APPLICATION_SET_PATH" || { echo "Error: $ARGO_APPLICATION_SET_PATH not f ound"; exit 1; }
+          pwd
+          cat argocd-crd/argocd-applications/argo-application-python-api.yml
           yq e '.spec.generators[0].list.elements[0].imageTag = env(TAG)' -i "$ARGO_APPLICATION_SET_PATH"
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
