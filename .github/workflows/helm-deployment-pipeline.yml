@@ -117,7 +117,7 @@ jobs:
           TAG: ${{needs.publish.outputs.helm_chart}}
           ARGO_APPLICATION_SET_PATH: ${{env.ARGO_APPLICATION_SET_PATH}}
         run: |
-          yq e '.spec.template.spec.source.targetRevision = env.TAG' -i "$ARGO_APPLICATION_SET_PATH"
+          yq e '.spec.template.spec.source.targetRevision = env(TAG)' -i "$ARGO_APPLICATION_SET_PATH"
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git pull origin main
