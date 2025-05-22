@@ -10,7 +10,7 @@ spec:
           - environment: backend
             appName: python-api
             valuesFile: values/namespaces/development/python-api/values.yml
-            imageTag: 0.0.32-ac9022d9f0bf04d25201c8ff8de431374495c7a8
+            imageTag: 0.0.40-0b69610aa2f7bf00605312a25b13966a76effe53
   template:
     metadata:
       name: '{{environment}}-{{appName}}'
