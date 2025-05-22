@@ -102,6 +102,15 @@ jobs:
           run: |
             helm push HelmChart/$PACKAGE_NAME.tgz oci://$REGISTRY/$REGISTRY_ALIAS/
 
+  deploy:
+    runs-on: self-hosted
+    needs: publish
+
+    steps:
+      - name: Test connectiom
+        run: | 
+          echo "Hello from the Other side"
+
 
 
 
