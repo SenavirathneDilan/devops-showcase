@@ -9,6 +9,7 @@ on:
 env:
   WORk_DIR: 'helm-charts'
   CHART_NAME: "sample-python-api"
+  REGISTRY_ALIAS: "helm"
   ROLE_TO_ASSUME: ${{vars.ROLE_TO_ASSUME}}
 jobs:
   validate:
@@ -94,8 +95,10 @@ jobs:
           env:
             REGISTRY: ${{steps.login-ecr.outputs.registry}}
             PACKAGE_NAME: ${{needs.validate.outputs.artifact_name}}
+            REGISTRY_ALIAS: ${{env.REGISTRY_ALIAS}}
           run: |
-            helm push $PACKAGE_NAME oci://$REGISTRY/helm
+            ls -R
+            helm push $PACKAGE_NAME oci://$REGISTRY/$REGISTRY_ALIAS
 
 
 
