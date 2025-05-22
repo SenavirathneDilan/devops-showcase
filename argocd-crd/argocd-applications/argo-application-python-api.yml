@@ -11,7 +11,6 @@ spec:
             appName: python-api
             valuesFile: values/namespaces/development/python-api/values.yml
             imageTag: 0.0.32-ac9022d9f0bf04d25201c8ff8de431374495c7a8
-            
   template:
     metadata:
       name: '{{environment}}-{{appName}}'
@@ -25,7 +24,7 @@ spec:
       source:
         repoURL: 'oci://027222547638.dkr.ecr.ap-southeast-1.amazonaws.com'
         chart: helm/sample-python-api
-        targetRevision: 0.1.24-aeb0cd0337ef82f62d56b69d6c69659259ba2a68
+        targetRevision: sample-python-api-0.1.28-671e50a59af5793a1ba633c08e544fa6a34cc901
         helm:
           valueFiles:
             - '{{valuesFile}}'
@@ -38,4 +37,4 @@ spec:
       syncPolicy:
         automated:
           prune: true
-          selfHeal: true  
+          selfHeal: true
