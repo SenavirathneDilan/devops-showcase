@@ -60,7 +60,7 @@ jobs:
             path: ${{env.WORk_DIR}}/${{env.CHART_NAME}}-${{steps.get_info.outputs.chart_version}}-${{github.sha}}.tgz
     outputs:
       artifact_id: ${{steps.upload.outputs.artifact-id}}
-      artifact_name: ${{ env.CHART_NAME}}-${{ steps.get_info.outputs.chart_version }}-${{github.sha}}.tgz
+      artifact_name: ${{ env.CHART_NAME}}-${{ steps.get_info.outputs.chart_version }}-${{github.sha}}
 
   publish:
     runs-on: ubuntu-latest
@@ -100,7 +100,7 @@ jobs:
             PACKAGE_NAME: ${{needs.validate.outputs.artifact_name}}
             REGISTRY_ALIAS: ${{env.REGISTRY_ALIAS}}
           run: |
-            helm push $PACKAGE_NAME oci://$REGISTRY/$REGISTRY_ALIAS
+            helm push $PACKAGE_NAME.tgz oci://$REGISTRY/$REGISTRY_ALIAS
 
 
 
