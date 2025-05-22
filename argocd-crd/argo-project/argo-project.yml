@@ -6,6 +6,7 @@ metadata:
 spec:
   sourceRepos:
     - 'https://github.com/SenavirathneDilan/devops-showcase.git'
+    - 'oci://027222547638.dkr.ecr.ap-southeast-1.amazonaws.com'
   destinations:
     - namespace: backend
       server: https://kubernetes.default.svc

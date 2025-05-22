@@ -31,7 +31,11 @@ spec:
             - '{{valuesFile}}'
           parameters:
             - name: image.tsg
-              values: '{{imageTag}}'
+              value: '{{imageTag}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: backend
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true  
