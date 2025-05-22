@@ -90,10 +90,6 @@ jobs:
           id: login-ecr
           uses: aws-actions/amazon-ecr-login@v2
 
-        - name: List files
-          run: |
-            ls -al
-
         - name: Push Helm Chart to Amazon ECR
           env:
             REGISTRY: ${{steps.login-ecr.outputs.registry}}
@@ -101,15 +97,33 @@ jobs:
             REGISTRY_ALIAS: ${{env.REGISTRY_ALIAS}}
           run: |
             helm push HelmChart/$PACKAGE_NAME.tgz oci://$REGISTRY/$REGISTRY_ALIAS/
+    outputs:
+      helm_chart: ${{needs.validate.outputs.artifact_name}}
+
 
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: publish
-
+    
+    permissions:
+        id-token: write
+        contents: write
     steps:
-      - name: Test connectiom
-        run: | 
-          echo "Hello from the Other side"
+      - name: CheckOut Argocd CRD REpo
+        uses: actions/checkout@v4
+
+      - name: Update targetRevision in ArgoAPP
+        env:
+          TAG: ${{needs.publish.outputs.helm_chart}}
+          ARGO_APPLICATION_SET_PATH: ${{env.ARGO_APPLICATION_SET_PATH}}
+        run: |
+          yq e '.spec.template.spec.source.targetRevision = env(TAG)' -i argocd-crd/argocd-applications/argo-application-python-api.yml
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git pull origin main
+          git add argocd-crd/argocd-applications/argo-application-python-api.yml
+          git commit -m "Updates Tag for ${{ github.event.repository.name }} to ${{needs.publish.outputs.helm_chart}}"
+          git push origin main    
 
 
 
