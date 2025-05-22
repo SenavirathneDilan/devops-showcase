@@ -9,6 +9,7 @@ on:
 env:
   APP_PATH: python-sample-app
   ROLE_TO_ASSUME: ${{vars.ROLE_TO_ASSUME}}
+  ARGO_APPLICATION_SET: argocd-crd/argocd-applications/argo-application-python-api.yml
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -99,11 +100,26 @@ jobs:
     outputs:
       full_tag: ${{steps.get_data.outputs.app_version}}-${{github.sha}}
           
-  # updateArgoApp:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   permissions:
-  #       id-token: write
-  #       contents: write
-  #   steps:
-  #     - name: CheckOut Argocd CRD REpo
+  updateArgoApp:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+        id-token: write
+        contents: write
+    steps:
+      - name: CheckOut Argocd CRD REpo
+        uses: actions/checkout@v4
+
+      - name: Update ImageTAg in ArgoAPP
+        env:
+          TAG: ${{needs.build.outputs.full_tag}}
+          ARGO_APPLICATION_SET_PATH: ${{env.ARGO_APPLICATION_SET_PATH}}
+        run: |
+          yq e '.spec.generators[0].list.elements[0].imageTag = env.TAG' -i "$ARGO_APPLICATION_SET_PATH"
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git pull origin main
+          git add .
+          git commit -m "Updates Tag for ${{ github.event.repository.name }} to ${{ needs.build.outputs.full_tag }}"
+          git push origin main
+          
