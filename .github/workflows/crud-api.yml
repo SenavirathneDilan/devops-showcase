@@ -115,9 +115,7 @@ jobs:
           TAG: ${{needs.build.outputs.full_tag}}
           ARGO_APPLICATION_SET_PATH: ${{env.ARGO_APPLICATION_SET_PATH}}
         run: |
-          pwd
-          cat argocd-crd/argocd-applications/argo-application-python-api.yml
-          yq e '.spec.generators[0].list.elements[0].imageTag = env(TAG)' -i "$ARGO_APPLICATION_SET_PATH"
+          yq e '.spec.generators[0].list.elements[0].imageTag = env(TAG)' -i argocd-crd/argocd-applications/argo-application-python-api.yml
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git pull origin main
