@@ -142,27 +142,14 @@ jobs:
           pip install -r requirements.txt
         working-directory: ${{ env.APP_PATH }}
       
-      - name: install wkhtmltopdf
+      - name: Build Sphinx documentation
         run: |
-          sudo apt update
-          sudo apt-get install -y wkhtmltopdf
-
-      - name: Start FastAPI server in background
-        run: |
-          uvicorn main:app --host 0.0.0.0 --port 8000 &
-          sleep 10
-      - name: Generate static HTML for Swagger UI
-        run: |
-          wkhtmltopdf http://localhost:8000/docs docs.html
-      - name: Create output directory
-        run: |
-          mkdir -p build
-          mv docs.html build/index.html
+          sphinx-build -b html . _build
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          folder: build
-          branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_build/html
 
 
           
