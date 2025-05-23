@@ -22,14 +22,14 @@ spec:
     spec:
       project: backend-services
       source:
-        repoURL: 'oci://027222547638.dkr.ecr.ap-southeast-1.amazonaws.com'
-        chart: helm/sample-python-api
-        targetRevision: sample-python-api-0.1.28-671e50a59af5793a1ba633c08e544fa6a34cc901
+        repoURL: '027222547638.dkr.ecr.ap-southeast-1.amazonaws.com/helm'
+        chart: sample-python-api
+        targetRevision: 0.1.24-aeb0cd0337ef82f62d56b69d6c69659259ba2a68
         helm:
           valueFiles:
             - '{{valuesFile}}'
           parameters:
-            - name: image.tsg
+            - name: image.tag
               value: '{{imageTag}}'
       destination:
         server: https://kubernetes.default.svc
