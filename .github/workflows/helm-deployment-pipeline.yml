@@ -18,6 +18,7 @@ jobs:
     steps:
       - name: Chekout Code
         uses: actions/checkout@v4
+
       - name: Get Info
         id: get_info
         working-directory: ${{env.WORk_DIR}}

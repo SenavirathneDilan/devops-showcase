@@ -23,8 +23,8 @@ spec:
     spec:
       project: backend-services
       source:
-        repoURL: 'oci://027222547638.dkr.ecr.ap-southeast-1.amazonaws.com'
-        chart: helm/sample-python-api
+        repoURL: 'oci://027222547638.dkr.ecr.ap-southeast-1.amazonaws.com/helm'
+        chart: sample-python-api
         targetRevision: 0.1.24-aeb0cd0337ef82f62d56b69d6c69659259ba2a68
         helm:
           valueFiles:
