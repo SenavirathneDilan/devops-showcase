@@ -24,6 +24,13 @@ resource "aws_subnet" "public" {
   lifecycle {
     prevent_destroy = true
   }
+
+  tags = merge(
+    var.public_subnet_tags,
+    {
+      "Name" = "public-${element(var.public_subnets, count.index)}"
+    }
+  )
 }
 
 resource "aws_subnet" "private" {
@@ -35,6 +42,12 @@ resource "aws_subnet" "private" {
   lifecycle {
     prevent_destroy = true
   }
+  tags = merge(
+    var.private_subnet_tags,
+    {
+      "Name" : "private-${element(var.private_subnets, count.index)}"
+    }
+  )
 }
 
 resource "aws_internet_gateway" "gw" {
